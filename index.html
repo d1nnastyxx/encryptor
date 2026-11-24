@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#09090b" />
+  <title>Encryptor — Offline File Encryption</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- Subtle Architectural Background -->
+  <div id="bgImageLayer" class="bg-image-layer" aria-hidden="true"></div>
+  <div id="bgGridLayer" class="bg-grid-layer" aria-hidden="true"></div>
+  <div id="ambientLight" class="ambient-light" aria-hidden="true"></div>
+
+  <!-- Main Layout -->
+  <div class="app-shell">
+    <!-- Minimalist Topbar -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">
+          <img src="assets/logo.png" alt="Logo" class="brand-logo-img" onerror="this.style.display='none'; document.getElementById('brandMarkSvg').style.display='block';" />
+          <svg id="brandMarkSvg" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="11" width="16" height="10" rx="2.5"></rect>
+            <path d="M8 11V7.5a4 4 0 0 1 8 0V11"></path>
+          </svg>
+        </div>
+        <div class="brand-meta">
+          <div class="brand-name-row">
+            <h1 id="appNameText">Encryptor</h1>
+            <span class="badge-subtle" id="appVersionText">4.5</span>
+          </div>
+          <p class="brand-sub">High-End Multiple Layer Encryption System &middot; 100% Local</p>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button type="button" class="cmd-trigger-btn" id="btnOpenCmd" title="Menu Perintah Cepat (Ctrl+K)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="20" y1="20" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span>Perintah</span>
+          <kbd>&#8984;K</kbd>
+        </button>
+
+        <span class="status-chip" id="securityStatusPill">
+          <span class="status-dot"></span> Offline
+        </span>
+        
+        <button type="button" class="icon-pill-btn" id="btnOpenGuide" title="Panduan & Blueprint Kriptografi" aria-label="Panduan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </button>
+
+
+
+        <button type="button" class="icon-pill-btn" id="btnToggleSound" title="Suara UI" aria-label="Suara UI">
+          <svg id="soundIconOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <svg id="soundIconOff" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="22" y1="9" x2="16" y2="15"></line>
+            <line x1="16" y1="9" x2="22" y2="15"></line>
+          </svg>
+        </button>
+
+        <button type="button" class="icon-pill-btn" id="btnToggleTheme" title="Ganti Tema Terang/Gelap" aria-label="Ganti Tema">
+          <svg id="themeIconSun" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+          </svg>
+          <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Sliding Segmented Control -->
+    <div class="segmented-wrap">
+      <div class="segmented-control" id="modeTabs" role="tablist">
+        <div class="segmented-indicator" id="tabIndicator"></div>
+        <button type="button" class="seg-btn active" id="tabEncrypt" role="tab" aria-selected="true" data-mode="encrypt">
+          Enkripsi File
+        </button>
+        <button type="button" class="seg-btn" id="tabDecrypt" role="tab" aria-selected="false" data-mode="decrypt">
+          Dekripsi (.cel / .png)
+        </button>
+      </div>
+    </div>
+
+    <!-- Main 2-Column Studio Workspace -->
+    <main class="studio-grid">
+      <!-- Primary Action Surface -->
+      <section class="surface-card">
+        <div class="card-head">
+          <h2 id="panelTitle">Sumber &amp; Kunci</h2>
+          <div class="head-actions-inline">
+            <button type="button" class="btn-chip-subtle" id="btnPasteClipboard" title="Tempel teks/gambar dari Clipboard">
+              Tempel
+            </button>
+            <span class="mono-tag" id="modeBadgeExt">* &rarr; .cel</span>
+          </div>
+        </div>
+
+        <!-- Magnetic Dropzone -->
+        <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Pilih atau seret file">
+          <div class="dropzone-art" id="dropzoneIllustration"></div>
+          <p class="dropzone-title" id="dropzoneTitle">Pilih atau seret file ke sini</p>
+          <p class="dropzone-sub" id="dropzoneSub">PDF, gambar, dokumen, arsip, atau tekan Ctrl+V</p>
+          <input type="file" id="fileInput" multiple />
+        </div>
+
+        <!-- Credentials Form -->
+        <form id="cryptoForm" class="form-stack" autocomplete="off" novalidate>
+          <div class="field">
+            <div class="field-top">
+              <label for="passwordInput">Password</label>
+              <div class="field-metrics">
+                <span class="tabular-chip" id="crackTimeBadge">Crack: &mdash;</span>
+                <span class="tabular-chip" id="entropyBadge">0 bit</span>
+                <span class="strength-label" id="strengthText">Kosong</span>
+              </div>
+            </div>
+            <div class="input-box">
+              <input type="password" id="passwordInput" placeholder="Masukkan kunci sandi..." autocomplete="new-password" spellcheck="false" />
+              <div class="input-inline-tools">
+                <button type="button" class="inline-tool-btn" id="btnGenPassword" title="Buat Password Acak CSPRNG">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                </button>
+                <button type="button" class="inline-tool-btn" id="btnCopyPassword" title="Salin Password">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+                <button type="button" class="inline-tool-btn toggle-vis-btn" data-target="passwordInput" title="Tampilkan/Sembunyikan">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="meter-track" id="strengthBarTrack">
+              <div class="meter-fill" id="strengthBarFill"></div>
+            <div class="entropy-graph-wrap" id="entropyGraphWrap">
+              <div class="entropy-graph-top">
+                <span>Kurva Ketahanan Brute-Force</span>
+                <strong id="entropyZoneLabel">Siaga</strong>
+              </div>
+              <svg class="entropy-svg" viewBox="0 0 280 54" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="entGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#ef4444" stop-opacity="0.28"/>
+                    <stop offset="45%" stop-color="#f59e0b" stop-opacity="0.26"/>
+                    <stop offset="75%" stop-color="#10b981" stop-opacity="0.28"/>
+                    <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.34"/>
+                  </linearGradient>
+                  <clipPath id="entClip"><rect id="entropyClipRect" x="0" y="0" width="8" height="54"/></clipPath>
+                </defs>
+                <path d="M 8 48 C 65 44, 130 22, 272 8" fill="none" stroke="var(--border-strong)" stroke-width="1.6" stroke-dasharray="3 3"/>
+                <path d="M 8 48 C 65 44, 130 22, 272 8 L 272 52 L 8 52 Z" fill="url(#entGrad)" clip-path="url(#entClip)"/>
+                <path d="M 8 48 C 65 44, 130 22, 272 8" fill="none" stroke="var(--accent)" stroke-width="2" clip-path="url(#entClip)"/>
+                <line id="entropyGuideLine" x1="8" y1="48" x2="8" y2="52" stroke="var(--border-strong)" stroke-width="1"/>
+                <circle id="entropyDotGlow" cx="8" cy="48" r="6" opacity="0.22"/>
+                <circle id="entropyDot" cx="8" cy="48" r="3.2"/>
+              </svg>
+              <div class="avalanche-wrap">
+                <div class="entropy-graph-top">
+                  <span>Avalanche Effect (256-bit SHA-256)</span>
+                  <strong id="avalanchePct" style="color:var(--accent);">0% bit flip</strong>
+                </div>
+                <canvas id="avalancheCanvas" class="avalanche-canvas" width="280" height="48"></canvas>
+              </div>
+            </div>
+            </div>
+          </div>
+
+          <div class="collapsible-field" id="confirmPasswordGroup">
+            <div class="collapsible-inner">
+              <div class="field">
+                <div class="field-top">
+                  <label for="confirmPasswordInput">Konfirmasi Password</label>
+                  <span class="match-label" id="matchText"></span>
+                </div>
+                <div class="input-box">
+                  <input type="password" id="confirmPasswordInput" placeholder="Ulangi password..." autocomplete="new-password" spellcheck="false" />
+                  <div class="input-inline-tools">
+                    <button type="button" class="inline-tool-btn toggle-vis-btn" data-target="confirmPasswordInput" title="Tampilkan/Sembunyikan">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="notice-banner" id="weakPasswordBanner" style="display:none;">
+            Entropi sandi rendah. Ketuk ikon petir (&#9889;) untuk membuat sandi acak 20 karakter.
+          </div>
+
+          <!-- Progressive Disclosure: Opt-In Protection Settings -->
+          <div class="accordion" id="advancedAccordion">
+            <button type="button" class="accordion-trigger" id="btnToggleAdvanced" aria-expanded="false">
+              <span>Pengaturan Proteksi (Opsional)</span>
+              <div class="accordion-right">
+                <span class="tabular-chip" id="activeProtectionsBadge">Standar Lv 1</span>
+                <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </button>
+            <div class="accordion-body" id="advancedContent">
+              <div class="accordion-inner">
+                <!-- 1. Multi-Layer Cascade Level (Encrypt Only) -->
+                <div class="setting-row" id="cascadeLevelRow">
+                  <div class="setting-copy">
+                    <strong>Multi-Layer Cascade</strong>
+                    <span>Lapisan enkripsi berantai (Lv 3 + padding acak)</span>
+                  </div>
+                  <div class="level-pills" id="cascadeLevelPills">
+                    <button type="button" class="level-btn active" data-level="1">Lv 1</button>
+                    <button type="button" class="level-btn" data-level="2">Lv 2</button>
+                    <button type="button" class="level-btn" data-level="3">Lv 3</button>
+                  </div>
+                </div>
+
+                <!-- 2. Kunci Ganda Fisik (SHA-256 Keyfile — Encrypt & Decrypt) -->
+                <div class="setting-block" id="keyfileBlock">
+                  <label class="setting-row">
+                    <div class="setting-copy">
+                      <strong>Kunci Ganda Fisik (SHA-256 Keyfile)</strong>
+                      <span>Gabungkan sandi dengan hash file fisik pilihan</span>
+                    </div>
+                    <input type="checkbox" id="keyfileToggle" class="toggle-switch" />
+                  </label>
+                  <div class="opt-subpanel" id="keyfilePanel">
+                    <div class="opt-subpanel-inner">
+                      <div class="file-pick-row">
+                        <button type="button" class="btn-ghost-sm" id="btnPickKeyfile">Pilih Keyfile</button>
+                        <span class="pick-label" id="keyfileNameLabel">Belum ada keyfile dipilih</span>
+                        <button type="button" class="btn-clear-mini" id="btnClearKeyfile" style="display:none;">&#10005;</button>
+                        <input type="file" id="keyfileInput" style="display:none;" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2B. 2-Part Split Key (Kunci Terbelah — Encrypt & Decrypt) -->
+                <div class="setting-block" id="splitKeyBlock">
+                  <label class="setting-row">
+                    <div class="setting-copy">
+                      <strong>2-Part Split Key (Kunci B)</strong>
+                      <span>Wajibkan kunci kedua terpisah untuk membuka file</span>
+                    </div>
+                    <input type="checkbox" id="splitKeyToggle" class="toggle-switch" />
+                  </label>
+                  <div class="opt-subpanel" id="splitKeyPanel">
+                    <div class="opt-subpanel-inner">
+                      <input type="password" id="splitKeyInput" class="sub-input" placeholder="Masukkan Kunci Bagian B..." autocomplete="new-password" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2C. Penyamaran Nama File (Encrypt Only) -->
+                <div class="setting-block" id="obfuscateBlock">
+                  <label class="setting-row">
+                    <div class="setting-copy">
+                      <strong>Samarkan Nama File (.cel)</strong>
+                      <span>Ubah nama luar menjadi acak atau samaran (misal ankxhjbak.cel)</span>
+                    </div>
+                    <input type="checkbox" id="obfuscateToggle" class="toggle-switch" />
+                  </label>
+                  <div class="opt-subpanel" id="obfuscatePanel">
+                    <div class="opt-subpanel-inner">
+                      <div class="level-pills" id="obfuscateModePills" style="width:100%;display:grid;grid-template-columns:repeat(3,1fr);">
+                        <button type="button" class="level-btn active" data-obf="random">Acak</button>
+                        <button type="button" class="level-btn" data-obf="system">Sistem</button>
+                        <button type="button" class="level-btn" data-obf="custom">Kustom</button>
+                      </div>
+                      <input type="text" id="customAliasInput" class="sub-input" placeholder="Ketik nama samaran tanpa .cel..." style="display:none;" />
+                    </div>
+                  </div>
+                </div>
+
+
+                <!-- 3. Kapsul Waktu (Encrypt Only) -->
+                <div class="setting-block" id="expiryBlock">
+                  <label class="setting-row">
+                    <div class="setting-copy">
+                      <strong>Kapsul Waktu (Kedaluwarsa)</strong>
+                      <span>Tolak dekripsi otomatis setelah tanggal tertentu</span>
+                    </div>
+                    <input type="checkbox" id="expiryToggle" class="toggle-switch" />
+                  </label>
+                  <div class="opt-subpanel" id="expiryPanel">
+                    <div class="opt-subpanel-inner">
+                      <input type="datetime-local" id="expiryInput" class="sub-input" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 4. Duress Vault / File Pancingan (Encrypt Only) -->
+                <div class="setting-block" id="duressBlock">
+                  <label class="setting-row">
+                    <div class="setting-copy">
+                      <strong>Duress Vault (File Pancingan)</strong>
+                      <span>Sembunyikan file umpan dengan password kedua</span>
+                    </div>
+                    <input type="checkbox" id="duressToggle" class="toggle-switch" />
+                  </label>
+                  <div class="opt-subpanel" id="duressPanel">
+                    <div class="opt-subpanel-inner">
+                      <div class="file-pick-row">
+                        <button type="button" class="btn-ghost-sm" id="btnPickDuressFile">Pilih File Umpan</button>
+                        <span class="pick-label" id="duressFileLabel">Belum ada file umpan</span>
+                        <input type="file" id="duressFileInput" style="display:none;" />
+                      </div>
+                      <input type="password" id="duressPasswordInput" class="sub-input" placeholder="Password Pancingan (harus beda dari utama)..." autocomplete="new-password" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 5. PNG Steganography (Encrypt Only) -->
+                <div class="setting-block" id="stegoBlock">
+                  <label class="setting-row">
+                    <div class="setting-copy">
+                      <strong>Kamuflase Gambar (PNG Steganography)</strong>
+                      <span>Sisipkan .cel ke piksel gambar cover (.png)</span>
+                    </div>
+                    <input type="checkbox" id="stegoToggle" class="toggle-switch" />
+                  </label>
+                  <div class="opt-subpanel" id="stegoPanel">
+                    <div class="opt-subpanel-inner">
+                      <div class="file-pick-row">
+                      <div class="stego-gauge-box" id="stegoGaugeBox" style="display:none;">
+                        <div class="stego-ring-wrap">
+                          <svg viewBox="0 0 44 44">
+                            <circle cx="22" cy="22" r="18" fill="none" stroke="var(--border)" stroke-width="4"/>
+                            <circle id="stegoGaugeArc" cx="22" cy="22" r="18" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round" transform="rotate(-90 22 22)"/>
+                          </svg>
+                          <span id="stegoGaugePct">0%</span>
+                        </div>
+                        <div class="stego-gauge-detail" id="stegoGaugeDetail"></div>
+                      </div>
+                        <button type="button" class="btn-ghost-sm" id="btnPickCoverImg">Pilih Gambar Cover</button>
+                        <span class="pick-label" id="coverImgLabel">Pilih foto PNG/JPG beresolusi cukup</span>
+                        <input type="file" id="coverImgInput" accept="image/png,image/jpeg,image/webp" style="display:none;" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 6. Multi-File Vault Bundle & CPU Benchmark -->
+                <label class="setting-row" id="bundleToggleWrap">
+                  <div class="setting-copy">
+                    <strong>Arsip Brankas Tunggal (.cel)</strong>
+                    <span>Gabungkan seluruh antrean ke dalam 1 file</span>
+                  </div>
+                  <input type="checkbox" id="bundleModeToggle" class="toggle-switch" />
+                </label>
+
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Kalibrasi CPU &amp; Auto-Wipe</strong>
+                <div class="bench-graph-box" id="benchGraphBox" style="display:none;"></div>
+                    <span><span id="statIterations">600K KDF</span> &middot; <span id="autoWipeBadge">Wipe 30s</span></span>
+                  </div>
+                  <button type="button" class="btn-ghost-sm" id="btnBenchmark">Kalibrasi</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Primary CTA -->
+          <div class="cta-stack">
+            <button type="submit" class="btn-primary" id="btnStartProcess">
+              <span id="btnStartLabel">Enkripsi File</span>
+            </button>
+            <button type="button" class="btn-danger" id="btnCancelProcess" style="display:none;">
+              Batalkan Proses
+            </button>
+          </div>
+        </form>
+
+        <!-- Active Progress Panel -->
+        <div class="progress-panel" id="cryptoVisualizer" style="display:none;">
+          <div class="progress-head">
+            <div class="progress-meta">
+              <span class="progress-mode-pill" id="visualizerMode">ENCRYPT</span>
+              <span class="progress-filename" id="visualizerFile">Memproses...</span>
+            </div>
+            <span class="progress-pct" id="visualizerPercent">0%</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="visualizerBarFill"></div>
+          </div>
+          <div class="progress-stage" id="visualizerStage">Inisialisasi...</div>
+        </div>
+      </section>
+
+      <!-- Queue Surface -->
+      <section class="surface-card queue-card">
+        <div class="card-head">
+          <div class="head-with-count">
+            <h2>Antrean</h2>
+            <span class="count-pill" id="queueBadge">0</span>
+          </div>
+          <div class="queue-head-right">
+            <span class="session-pill" id="statSessionActivity">Siaga</span>
+            <button type="button" class="btn-link-danger" id="btnRemoveAll" disabled>Bersihkan</button>
+          </div>
+        </div>
+
+        <p class="gesture-hint" id="gestureHint" style="display:none;">
+          Geser kartu ke kiri untuk hapus &middot; Geser kanan untuk simpan
+        </p>
+
+        <div class="queue-list" id="queueList">
+          <div class="empty-state" id="queueEmptyState">
+            <div class="empty-art" id="queueEmptyIllustration"></div>
+            <p class="empty-title">Belum ada file</p>
+            <p class="empty-sub">Tambahkan dokumen, foto, atau tempel dari clipboard.</p>
+          </div>
+        </div>
+
+        <div class="queue-footer-stats">
+          <span>Total antrean: <strong id="statQueueCount">0</strong></span>
+          <span>Selesai sesi ini: <strong id="statProcessedCount">0</strong></span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Slide-Over Drawer (Inspector & Preview) -->
+  <div id="drawerBackdrop" class="drawer-backdrop" aria-hidden="true">
+    <aside class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+      <div class="drawer-handle"></div>
+      <div class="drawer-header">
+        <div>
+          <h3 id="drawerTitle">Inspektur</h3>
+          <p id="drawerSubtitle" class="drawer-sub">Detail file lokal</p>
+        </div>
+        <button type="button" class="icon-pill-btn" id="btnCloseDrawer" aria-label="Tutup panel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="drawer-body" id="drawerBody"></div>
+    </aside>
+  </div>
+
+  <!-- Command Palette (Ctrl+K) -->
+  <div id="cmdBackdrop" class="cmd-backdrop" aria-hidden="true">
+    <div class="cmd-dialog" role="dialog" aria-modal="true" aria-label="Perintah Cepat">
+      <div class="cmd-input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="20" y1="20" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="cmdSearchInput" placeholder="Cari aksi cepat..." autocomplete="off" />
+        <button type="button" class="cmd-esc" id="btnCloseCmd">ESC</button>
+      </div>
+      <div class="cmd-list" id="cmdList"></div>
+    </div>
+  </div>
+
+  <!-- Toast & Modal -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="surface-card modal-box">
+      <h3 id="modalTitle">Konfirmasi</h3>
+      <p id="modalMessage">Lanjutkan tindakan ini?</p>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="modalCancelBtn">Batal</button>
+        <button type="button" class="btn-primary" id="modalConfirmBtn">Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 1. Full-Motion Start-Up Onboarding -->
+  <div id="onboardBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="surface-card onboard-card">
+      <div class="onboard-top">
+        <span class="badge-subtle">Selamat Datang</span>
+        <button type="button" class="btn-chip-subtle" id="btnOnboardSkip">Lewati</button>
+      </div>
+      <div class="onboard-viewport" id="onboardViewport">
+        <div class="onboard-track" id="onboardTrack">
+          <!-- Slide 1 -->
+          <div class="onboard-slide">
+            <div class="onboard-art">
+              <svg viewBox="0 0 120 72" fill="none" stroke="currentColor" stroke-width="1.6">
+                <rect x="14" y="20" width="28" height="34" rx="5" opacity="0.5"/>
+                <path class="svg-flow-dash" d="M46 37 H74" stroke="var(--accent)" stroke-width="2"/>
+                <path d="M92 16 l14 6 v14 c0 10-6 17-14 21 c-8-4-14-11-14-21 V22 z" stroke="var(--success)"/>
+                <rect x="86" y="32" width="12" height="9" rx="2" fill="var(--success)" fill-opacity="0.2" stroke="var(--success)"/>
+              </svg>
+            </div>
+            <h3>100% Lokal &amp; Offline</h3>
+            <p>Seluruh proses enkripsi ChaCha20-Poly1305 berjalan langsung di perangkatmu tanpa server. File dan password tidak pernah keluar dari HP atau laptop.</p>
+          </div>
+          <!-- Slide 2 -->
+          <div class="onboard-slide">
+            <div class="onboard-art">
+              <svg viewBox="0 0 120 72" fill="none" stroke="currentColor" stroke-width="1.6">
+                <circle class="svg-pulse-ring" cx="60" cy="36" r="26" stroke="#8b5cf6" opacity="0.35"/>
+                <circle cx="60" cy="36" r="18" stroke="#3b82f6" opacity="0.65"/>
+                <circle cx="60" cy="36" r="10" stroke="#10b981"/>
+                <circle cx="60" cy="36" r="3" fill="#10b981"/>
+              </svg>
+            </div>
+            <h3>Cascade 3 Lapis &amp; Keyfile Fisik</h3>
+            <p>Aktifkan manual hingga 3 lapis enkripsi berantai dan gabungkan sandi dengan hash SHA-256 dari file fisik pilihanmu (foto/MP3/PDF).</p>
+          </div>
+          <!-- Slide 3 -->
+          <div class="onboard-slide">
+            <div class="onboard-art">
+              <svg viewBox="0 0 120 72" fill="none" stroke="currentColor" stroke-width="1.6">
+                <rect x="16" y="16" width="38" height="40" rx="6" stroke="var(--accent)"/>
+                <circle cx="28" cy="28" r="3" fill="var(--accent)"/>
+                <polyline points="18 48 30 35 40 44 52 30" stroke="var(--accent)"/>
+                <path class="svg-flow-dash" d="M58 36 H72" stroke="var(--warning)"/>
+                <rect x="76" y="16" width="28" height="17" rx="4" stroke="var(--success)"/>
+                <rect x="76" y="39" width="28" height="17" rx="4" stroke="var(--danger)" stroke-dasharray="3 2"/>
+              </svg>
+            </div>
+            <h3>Duress Vault &amp; Kamuflase PNG</h3>
+            <p>Sembunyikan file pancingan dengan password kedua, atur Kapsul Waktu kedaluwarsa, atau sisipkan arsip ke piksel gambar PNG.</p>
+          </div>
+          <!-- Slide 4: Mini Sandbox -->
+          <div class="onboard-slide">
+            <h3>Uji Coba Cepat (Sandbox)</h3>
+            <p>Geser pengatur di bawah untuk melihat perbandingan lapisan Cascade, atau mulai tur sorotan langsung di UI.</p>
+            <div class="sandbox-box">
+              <div class="sandbox-head" id="sandboxLevelText">Level 1 — Cepat (1 Lapis ChaCha20)</div>
+              <input type="range" id="sandboxLevelSlider" min="1" max="3" value="1" class="sandbox-range" />
+              <div class="bench-bar-track"><div id="sandboxBarFill" class="bench-bar-fill" style="width:36%;background:#10b981;"></div></div>
+              <button type="button" class="btn-secondary" id="btnOnboardTour" style="height:36px;font-size:0.78rem;margin-top:4px;">Mulai Tur Sorotan UI</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="onboard-footer">
+        <button type="button" class="btn-chip-subtle" id="btnOnboardPrev">Kembali</button>
+        <div class="onboard-dots">
+          <span class="onboard-dot active"></span>
+          <span class="onboard-dot"></span>
+          <span class="onboard-dot"></span>
+          <span class="onboard-dot"></span>
+        </div>
+        <button type="button" class="btn-primary" id="btnOnboardNext" style="width:auto;height:34px;padding:0 14px;font-size:0.78rem;">Lanjut</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Interactive Cryptography Blueprint / Halaman Petunjuk -->
+  <div id="guideBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="surface-card guide-card">
+      <div class="drawer-header">
+        <div>
+          <h3>Blueprint Cara Kerja</h3>
+          <p class="drawer-sub">Ketuk tiap blok pipeline untuk melihat struktur biner</p>
+        </div>
+        <button type="button" class="icon-pill-btn" id="btnCloseGuide" aria-label="Tutup">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="bp-grid">
+        <button type="button" class="bp-node active" data-node="input">1. Input</button>
+        <button type="button" class="bp-node" data-node="keyfile">2. Keyfile</button>
+        <button type="button" class="bp-node" data-node="pbkdf2">3. PBKDF2</button>
+        <button type="button" class="bp-node" data-node="cascade">4. Cascade</button>
+        <button type="button" class="bp-node" data-node="aead">5. Poly1305</button>
+        <button type="button" class="bp-node" data-node="stego">6. Stego PNG</button>
+      </div>
+      <div class="bp-detail-box" id="bpDetailBox"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="btnGuideReplayOnboard">Putar Onboarding</button>
+        <button type="button" class="btn-primary" id="btnGuideStartTour">Tur Sorotan UI</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Interactive Spotlight Tour Overlay -->
+  <div id="spotlightOverlay" class="spotlight-overlay" aria-hidden="true">
+    <div id="spotlightRing" class="spotlight-ring"></div>
+    <div id="spotlightCard" class="surface-card spotlight-card">
+      <div class="onboard-top">
+        <span class="tabular-chip" id="spotStepBadge">1 / 5</span>
+        <button type="button" class="btn-chip-subtle" id="btnSpotClose">Tutup</button>
+      </div>
+      <h4 id="spotTitle">Judul</h4>
+      <p id="spotDesc">Deskripsi</p>
+      <button type="button" class="btn-primary" id="btnSpotNext" style="height:36px;font-size:0.8rem;">Lanjut</button>
+    </div>
+  </div>
+
+  <!-- iOS Bottom Navigation Bar -->
+  <nav class="ios-tabbar" aria-label="Navigasi Utama">
+    <a href="index.html" class="ios-tab-link active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/></svg>
+      <span>Studio</span>
+    </a>
+    <a href="tools.html" class="ios-tab-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      <span>Tools</span>
+    </a>
+    <a href="guide.html" class="ios-tab-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Panduan</span>
+    </a>
+    <a href="settings.html" class="ios-tab-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Pengaturan</span>
+    </a>
+  </nav>
+
+  <!-- Classic Script Loading Order -->
+  <script src="config.js"></script>
+  <script src="js/prefs.js"></script>
+  <script src="js/assets.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/crypto.js"></script>
+  <script src="js/stego.js"></script>
+  <script src="js/security-pro.js"></script>
+  <script src="js/animations.js"></script>
+  <script src="js/onboarding-graphs.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

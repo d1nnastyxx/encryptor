@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#09090b" />
+  <title>Encryptor — Tools &amp; Stego Lab</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="bgGridLayer" class="bg-grid-layer" aria-hidden="true"></div>
+  <div id="ambientLight" class="ambient-light" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-meta">
+          <div class="brand-name-row">
+            <h1>Cipher Tools</h1>
+            <span class="badge-subtle">Stego &amp; Verifier</span>
+          </div>
+          <p class="brand-sub">Utilitas kriptografi lokal tanpa server</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="studio-grid">
+      <!-- 1. Zero-Width Text Steganography -->
+      <section class="surface-card">
+        <div class="card-head">
+          <h2>Zero-Width Text Stego</h2>
+          <span class="mono-tag">ChaCha20 &rarr; Unicode</span>
+        </div>
+
+        <div class="form-stack">
+          <div class="field">
+            <label style="font-size:0.78rem;color:var(--text-secondary);">Kalimat Pengantar (Tampil Normal di Chat)</label>
+            <input type="text" id="zwCarrierInput" class="sub-input" value="Halo, berkasnya sudah aku kirim ya." />
+          </div>
+          <div class="field">
+            <label style="font-size:0.78rem;color:var(--text-secondary);">Pesan Rahasia / Teks Hasil Stego</label>
+            <textarea id="zwMessageInput" class="tool-textarea" placeholder="Ketik pesan rahasia untuk disembunyikan, atau tempel teks stego untuk dibaca..."></textarea>
+          </div>
+          <div class="field">
+            <label style="font-size:0.78rem;color:var(--text-secondary);">Password Stego Teks</label>
+            <input type="password" id="zwPasswordInput" class="sub-input" placeholder="Password enkripsi teks..." />
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn-primary" id="btnZwHide">Sembunyikan</button>
+            <button type="button" class="btn-secondary" id="btnZwReveal">Ekstrak Pesan</button>
+          </div>
+          <div id="zwOutputBox" class="hash-output" style="display:none;"></div>
+          <button type="button" class="btn-ghost-sm" id="btnZwCopy" style="display:none;">Salin Hasil ke Clipboard</button>
+        </div>
+      </section>
+
+      <!-- 2. SHA-256 Verifier & Standalone Inspector -->
+      <section class="surface-card">
+        <div class="card-head">
+          <h2>SHA-256 Verifier &amp; Inspector</h2>
+          <span class="mono-tag">Forensic Check</span>
+        </div>
+
+        <div class="form-stack">
+          <div class="file-pick-row">
+            <button type="button" class="btn-ghost-sm" id="btnPickHashFile">Pilih File</button>
+            <span class="pick-label" id="hashFileLabel">Pilih file apa saja atau .cel</span>
+            <input type="file" id="hashFileInput" style="display:none;" />
+          </div>
+
+          <div id="hashResultBox" class="hash-output" style="display:none;"></div>
+
+          <div class="field">
+            <label style="font-size:0.78rem;color:var(--text-secondary);">Bandingkan dengan Hash SHA-256 Pembanding (Opsional)</label>
+            <input type="text" id="hashCompareInput" class="sub-input" placeholder="Tempel 64 karakter hex SHA-256 di sini..." />
+          </div>
+          <div id="hashMatchStatus" style="font-size:0.78rem;font-weight:600;"></div>
+
+          <div id="standaloneInspectBox" class="form-stack" style="display:none;"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <nav class="ios-tabbar" aria-label="Navigasi Utama">
+    <a href="index.html" class="ios-tab-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/></svg><span>Studio</span></a>
+    <a href="tools.html" class="ios-tab-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg><span>Tools</span></a>
+    <a href="guide.html" class="ios-tab-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>Panduan</span></a>
+    <a href="settings.html" class="ios-tab-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Pengaturan</span></a>
+  </nav>
+
+  <script src="config.js"></script>
+  <script src="js/prefs.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/crypto.js"></script>
+  <script src="js/animations.js"></script>
+  <script src="js/tools-page.js"></script>
+</body>
+</html>
